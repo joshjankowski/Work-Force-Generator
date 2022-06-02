@@ -10,7 +10,7 @@ describe('test name', ()  => {
   const name = "Josh";
   const e = new Employee(name)
   it('should return the name of the person entered', () => {
-    expect(e.name).toBe(name);
+    expect(e.getName()).toBe(name);
   });});
 
 describe('test id', ()  => {
