@@ -1,4 +1,5 @@
 const inquirer = require("inquirer");
+const uuid = require('./helper/uuid');
 const fs = require("fs");
 const path = require("path");
 const Manager = require("./lib/Manager");
@@ -42,7 +43,7 @@ const engineerQuestions = [
   {
     type: "input",
     message: "Enter the engineer's GitHub username:",
-    name: "github-username",
+    name: "githubUsername",
   },
   {
     type: "list",
@@ -98,12 +99,7 @@ const firstQuestion = {
   choices: ["Engineer", "Intern", "Manager", "Employee"],
   name: "role",
 };
-// const lastQuestion = {
-//   type: "list",
-//   message: "Would you like to add another employee?",
-//   choices: ["Yes", "No"],
-//   name: "another",
-// };
+
 const render = require("./src/template-helper.js");
 
 const teamArr = [];
@@ -117,7 +113,7 @@ function addTeam() {
         function addManager() {
           const manager = new Manager(
             response.name,
-            response.id,
+            uuid(),
             response.email,
             response.officeNumber,
           );
@@ -137,9 +133,9 @@ function addTeam() {
         function addIntern() {
           const intern = new Intern(
             response.name,
-            response.id,
+            uuid(),
             response.email,
-            response.officeNumber,
+            response.school,
           );
           teamArr.push(intern);
           idArr.push(response.id);
@@ -156,15 +152,16 @@ function addTeam() {
         function addEngineer() {
           const engineer = new Engineer(
             response.name,
-            response.id,
+            uuid(),
             response.email,
-            response.officeNumber,
+            response.githubUsername,
           );
           teamArr.push(engineer);
           idArr.push(response.id);
         if (response.another == "Yes") {
           addTeam();
         } else {
+          console.log(engineer.getGithub())
           generateHTML();
         }}
         addEngineer();
@@ -175,7 +172,7 @@ function addTeam() {
         function addEmployee() {
           const employee = new Employee(
             response.name,
-            response.id,
+            uuid(),
             response.email,
             response.officeNumber,
           );
@@ -191,16 +188,7 @@ function addTeam() {
     }
   });
 }
-// fs.writeFile(
-//   "./src/index.html",
-//   `hh`,
-//   "utf8",
-//   (err) => {
-//     if (err) throw err;
-//     console.log("success");
-//   })
-//   });
-// }
+
 addTeam();
 
 function generateHTML() {
