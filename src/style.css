@@ -28,6 +28,7 @@ p {
 .card {
     filter: drop-shadow(5px 5px 5px #000000);
     margin: 2rem;
+    background-color: rgb(235, 234, 234);
 }
 
 .card-header {
