@@ -1,12 +1,11 @@
 const inquirer = require("inquirer");
 const fs = require("fs");
-const questions = [
-  {
-    type: "list",
-    message: "Let's start with the role first:",
-    choices: ["Engineer", "Intern", "Manager", "Employee"],
-    name: "role",
-  },
+const path = require("path");
+const Manager = require("./lib/Manager");
+const Engineer = require("./lib/Engineer");
+const Intern = require("./lib/Intern");
+const Employee = require("./lib/Employee");
+const managerQuestions = [
   {
     type: "input",
     message: "Enter the person's name:",
@@ -17,93 +16,197 @@ const questions = [
     message: "Enter the person's email:",
     name: "email",
   },
+  {
+    type: "input",
+    message: "Enter the manager's office number:",
+    name: "officeNumber",
+  },
+  {
+    type: "list",
+    message: "Would you like to add another employee?",
+    choices: ["Yes", "No"],
+    name: "another",
+  }
 ];
-
-inquirer.prompt(questions).then((response) => {
-  if (response.role = "Manager") {
-    inquirer.prompt({
-      type: "input",
-      message: "Enter the manager's office number:",
-      name: "office-number",
-    })
-  } else if (response.role = "Engineer"){
-    inquirer.prompt({
-      type: "input",
-      message: "Enter the engineer's GitHub username:",
-      name: "github-username",
-    })
-  } else if (response.role = "Intern"){
-    inquirer.prompt({
-      type: "input",
-      message: "Enter the school you attend:",
-      name: "school",
-    })
-  } 
-});
-
-// const promptQuestions = async (options) => {
-//   const questions = [];
-
-//   if ((options.role = "Manager")) {
-//     const managerQuestion = {
-//       type: "input",
-//       message: "Enter the manager's office number:",
-//       name: "office-number",
-//     };
-//     questions.push(managerQuestion);
-//   }
-//   if ((options.role = "Engineer")) {
-//     const engineerQuestion = {
-//       type: "input",
-//       message: "Enter the engineer's GitHub username:",
-//       name: "github-username",
-//     };
-//     questions.push(engineerQuestion);
-//   }
-//   if ((options.role = "Intern")) {
-//     const internQuestion = {
-//       type: "input",
-//       message: "Enter the engineer's GitHub username:",
-//       name: "github-username",
-//     };
-//     questions.push(internQuestion);
-//   }
-
-//   const answers = await inquirer.prompt(questions);
+const engineerQuestions = [
+  {
+    type: "input",
+    message: "Enter the person's name:",
+    name: "name",
+  },
+  {
+    type: "input",
+    message: "Enter the person's email:",
+    name: "email",
+  },
+  {
+    type: "input",
+    message: "Enter the engineer's GitHub username:",
+    name: "github-username",
+  },
+  {
+    type: "list",
+    message: "Would you like to add another employee?",
+    choices: ["Yes", "No"],
+    name: "another",
+  },
+];
+const internQuestions = [
+  {
+    type: "input",
+    message: "Enter the person's name:",
+    name: "name",
+  },
+  {
+    type: "input",
+    message: "Enter the person's email:",
+    name: "email",
+  },
+  {
+    type: "input",
+    message: "Enter the school you attend:",
+    name: "school",
+  },
+  {
+    type: "list",
+    message: "Would you like to add another employee?",
+    choices: ["Yes", "No"],
+    name: "another",
+  },
+];
+const employeeQuestions = [
+  {
+    type: "input",
+    message: "Enter the person's name:",
+    name: "name",
+  },
+  {
+    type: "input",
+    message: "Enter the person's email:",
+    name: "email",
+  },
+  {
+    type: "list",
+    message: "Would you like to add another employee?",
+    choices: ["Yes", "No"],
+    name: "another",
+  },
+];
+const firstQuestion = {
+  type: "list",
+  message: "Let's start with the role first:",
+  choices: ["Engineer", "Intern", "Manager", "Employee"],
+  name: "role",
+};
+// const lastQuestion = {
+//   type: "list",
+//   message: "Would you like to add another employee?",
+//   choices: ["Yes", "No"],
+//   name: "another",
 // };
-// inquirer
-//   .prompt([
-//     {
-//       type: "list",
-//       message: "Let's start with the role first:",
-//       choices: ["Engineer", "Intern", "Manager"],
-//       name: "role",
-//     },
-//     {
-//       type: "input",
-//       message: "Enter the person's name:",
-//       name: "name",
-//     },
-//     {
-//         type: "input",
-//         message: "Enter the person's email:",
-//         name: "email",
-//       },
-//       {
-//         type: "input",
-//         message: "Enter the manager's office number:",
-//         name: "office-number",
-//       },
-//   ])
-//   .then((response) => {
-//     console.log(response.name);
-//     fs.writeFile(
-//       "./src/index.html",
-//       `#### Table of Contents\n\n[${response.name}](#${response.name})\n[User Story](#user-story)\n[Motivation](#motivation)\n[Uniqueness](#uniqueness)\n[Preview Photo](#preview-photo)\n[Usage](#usage)\n[Git Hub URL](#git-hub-URL)\n[Author](#author)\n[Email](#email)\n[License](#license)\n[Badge](#badge)\n## [${response.name}\n\n${response.description}\n\n## User Story\n\n${response.user}\n\n## Motivation\n\n${response.why}\n\n## Uniqueness\n\n${response.unique}\n\n## Preview Photo\n\n![img](./${response.photo})\n\n## Usage\n\n${response.usage}\n\n## Git Hub URL\n\nhttps://github.com/${response.url}\n\n## Author\n\n${response.author}\n\n## Email\n\n[mailto](mailto:${response.email})\n\n## License\n\nThis project is protected by the ${response.copyright} license. Copyright J Cubed LLC\n\n## Badge\n\n![img](https://img.shields.io/badge/${response.label}-${response.message}-${response.color})`,
-//       "utf8",
-//       (err) => {
-//         if (err) throw err;
-//         console.log("success");
-//       }
-//     );
+const render = require("./src/template-helper.js");
+
+const teamArr = [];
+const idArr = [];
+
+function addTeam() {
+  inquirer.prompt(firstQuestion).then((response) => {
+    if (response.role == "Manager") {
+      inquirer.prompt(managerQuestions).then((response) => {
+        console.log("MANAGER SELECTED");
+        function addManager() {
+          const manager = new Manager(
+            response.name,
+            response.id,
+            response.email,
+            response.officeNumber,
+          );
+          console.log(manager)
+          teamArr.push(manager);
+          idArr.push(response.id);
+        if (response.another == "Yes") {
+          addTeam();
+        } else {
+          generateHTML();
+        }}
+        addManager();
+      });
+    } else if (response.role == "Intern") {
+      inquirer.prompt(internQuestions).then((response) => {
+        console.log("INTERN SELECTED");
+        function addIntern() {
+          const intern = new Intern(
+            response.name,
+            response.id,
+            response.email,
+            response.officeNumber,
+          );
+          teamArr.push(intern);
+          idArr.push(response.id);
+        if (response.another == "Yes") {
+          addTeam();
+        } else {
+          generateHTML();
+        }}
+        addIntern();
+      });
+    } else if (response.role == "Engineer") {
+      inquirer.prompt(engineerQuestions).then((response) => {
+        console.log("ENGINEER SELECTED");
+        function addEngineer() {
+          const engineer = new Engineer(
+            response.name,
+            response.id,
+            response.email,
+            response.officeNumber,
+          );
+          teamArr.push(engineer);
+          idArr.push(response.id);
+        if (response.another == "Yes") {
+          addTeam();
+        } else {
+          generateHTML();
+        }}
+        addEngineer();
+      });
+    } else if (response.role == "Employee") {
+      inquirer.prompt(employeeQuestions).then((response) => {
+        console.log("EMPLOYEE SELECTED");
+        function addEmployee() {
+          const employee = new Employee(
+            response.name,
+            response.id,
+            response.email,
+            response.officeNumber,
+          );
+          teamArr.push(employee);
+          idArr.push(response.id);
+        if (response.another == "Yes") {
+          addTeam();
+        } else {
+          generateHTML();
+        }}
+        addEmployee();
+      });
+    }
+  });
+}
+// fs.writeFile(
+//   "./src/index.html",
+//   `hh`,
+//   "utf8",
+//   (err) => {
+//     if (err) throw err;
+//     console.log("success");
+//   })
 //   });
+// }
+addTeam();
+
+function generateHTML() {
+  console.log("Generating Team Profile.... ");
+  fs.writeFile("./src/index.html", render(teamArr), "utf8", (err) => {
+    if (err) throw err;
+    console.log("success");
+  });
+}
