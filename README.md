@@ -10,7 +10,7 @@
 [Email](#email)
 [License](#license)
 [Badge](#badge)
-## [Work Force Generator
+## Work Force Generator
 
 This project can be used to create cards for employees such as Engineers, Managers, Interns and regular Employees to show specific information.
 
